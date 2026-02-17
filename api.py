@@ -1,12 +1,14 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+
 app = FastAPI()
+
 class AddCars(BaseModel):
-    id:int
-    nomi:str
-    modeli:int
-    narxi:int
-    rasm:str
+    nomi: str
+    modeli: int
+    narxi: int
+    rasm: str
+
 cars = {
     "car1": {
         "nomi": "Chevrolet Malibu",
@@ -129,20 +131,24 @@ cars = {
         "rasm": "https://upload.wikimedia.org/wikipedia/commons/9/9f/Lexus_RX_2020.jpg"
     }
 }
-@app.get("/api")
-def takeUser():
+
+
+app.get("/api")
+def get_cars():
     return cars
-@app.post("/api/add")
-def addcar(carsAdd:AddCars):
-    cars.append(AddCars.dict())
-    return f"{cars}qo'shildi0"     
-@app.put("/api-pan/{cars}")
-def updata(cars:int,updateUser:AddCars):
-    for u in cars:
-        if u ["id"] == cars:
-           u ["id"] = updateUser.id 
-           u ["nomi"] = updateUser.nomi
-           u ["modeli"] = updateUser.modeli      
-           u ["narxi"] = updateUser.narxi 
-           u ["rasm"] = updateUser.rasm
-    return F"{cars.cars} yangilandil"
+@app.post("/api/add/{car_id}")
+def add_car(car_id: int, car: AddCars):
+    cars[car_id] = car.dict()
+    return {"message": "Qo'shildi", "car": cars[car_id]}
+@app.delete("/api/delete/{car_id}")
+def delete_car(car_id: int):
+    if car_id in cars:
+        del cars[car_id]
+        return {"message": "O'chirildi"}
+    return {"error": "Topilmadi"}
+@app.put("/api/update/{car_id}")
+def update_car(car_id: int, car: AddCars):
+    if car_id in cars:
+        cars[car_id] = car.dict()
+        return {"message": "Yangilandi", "car": cars[car_id]}
+    return {"error": "Topilmadi"}
